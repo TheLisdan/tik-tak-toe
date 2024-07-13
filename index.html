@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+    <!-- Don't use this in production -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <title>Крестики Нолики</title>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const SYMBOL_X = 'X';
+        const SYMBOL_O = 'O';
+
+        function App() {
+            const cells = [SYMBOL_X, SYMBOL_O, null, SYMBOL_O, SYMBOL_X, null, SYMBOL_O, null, SYMBOL_X];
+
+            const currentStep = SYMBOL_O;
+
+            const getSymbolClassName = (symbol) => {
+                if (symbol === SYMBOL_X) return 'symbol symbol-x';
+                else if (symbol === SYMBOL_O) return 'symbol symbol-o';
+                return '';
+            };
+
+            const renderSymbol = (symbol) => {
+                return <span className={`symbol ${getSymbolClassName(symbol)}`}>{symbol}</span>;
+            };
+
+            return (
+                <div className="game">
+                    <div className="game-info">
+                        Ход: {renderSymbol(currentStep)}
+                    </div>
+
+                    <div className="game-board">
+                        {cells.map((symbol, index) => (
+                            <button type="button" class="cell">
+                                {renderSymbol(symbol)}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+
+    <style>
+        .game {
+            display: flex;
+            flex-direction: column;
+            align-self: center;
+            align-items: center;
+            width: 300px;
+            margin: auto;
+            padding: 1rem;
+            font-family: Arial, sans-serif;
+            border: 1px solid #000000;
+            border-radius: 5px;
+        }
+
+        .game-info {
+            margin-bottom: 1rem;
+            font-size: 24px;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-rows: repeat(3, 1fr);
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100px;
+            height: 100px;
+            font-size: 2rem;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        .cell-winner {
+            background-color: #F6FBE4;
+        }
+
+        .symbol {
+            font-size: 2rem;
+        }
+
+        .symbol-x {
+            color: #f00;
+        }
+
+        .symbol-o {
+            color: #00f;
+        }
+    </style>
+</body>
+
+</html>
