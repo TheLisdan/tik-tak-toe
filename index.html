@@ -19,10 +19,33 @@
         const SYMBOL_X = 'X';
         const SYMBOL_O = 'O';
 
-        function App() {
-            const cells = [SYMBOL_X, SYMBOL_O, null, SYMBOL_O, SYMBOL_X, null, SYMBOL_O, null, SYMBOL_X];
+        const computeWinner = (cells) => {
+            const lines = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8],
+                [0, 4, 8],
+                [2, 4, 6],
+            ];
 
-            const currentStep = SYMBOL_O;
+            for (let i = 0; i < lines.length; i++) {
+                const [a, b, c] = lines[i];
+                if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
+                    return [a, b, c];
+                }
+            }
+
+            return null;
+        };
+
+        function App() {
+            const [cells, setCells] = React.useState([null, null, null, null, null, null, null, null, null]);
+            const [currentStep, setCurrentStep] = React.useState(SYMBOL_X);
+            const [winnerSequence, setWinnerSequence] = React.useState(null);
+            const [isDraw, setDraw] = React.useState(false);
 
             const getSymbolClassName = (symbol) => {
                 if (symbol === SYMBOL_X) return 'symbol symbol-x';
@@ -30,23 +53,57 @@
                 return '';
             };
 
+            const handleCellClick = (index) => {
+                if (cells[index] || winnerSequence) return;
+
+                const newCells = cells.slice();
+                newCells[index] = currentStep;
+                const winner = computeWinner(newCells);
+
+                setCells(newCells);
+                setCurrentStep(currentStep === SYMBOL_X ? SYMBOL_O : SYMBOL_X);
+                if (winner) {
+                    console.log(winner);
+                    setWinnerSequence(winner);
+                } else if (!newCells.includes(null)) {
+                    setDraw(true);
+                }
+            };
+
+            const handleRestart = () => {
+                setCells([null, null, null, null, null, null, null, null, null]);
+                setCurrentStep(SYMBOL_X);
+                setWinnerSequence(null);
+                setDraw(false);
+            };
+
             const renderSymbol = (symbol) => {
                 return <span className={`symbol ${getSymbolClassName(symbol)}`}>{symbol}</span>;
             };
 
+            const winnerSymbol = winnerSequence ? cells[winnerSequence[0]] : null;
+
             return (
                 <div className="game">
                     <div className="game-info">
-                        Ход: {renderSymbol(currentStep)}
+                        {winnerSequence ? "Победитель: " : isDraw ? "Ничья" : "Следующий ход: "} {!isDraw && renderSymbol(winnerSymbol || currentStep)}
                     </div>
 
                     <div className="game-board">
-                        {cells.map((symbol, index) => (
-                            <button type="button" class="cell">
+                        {cells.map((symbol, index) => {
+                            const isWinner = winnerSequence && winnerSequence?.includes(index);
+                            return <button
+                                key={index}
+                                type="button"
+                                className={`cell ${isWinner ? 'cell-winner' : ''}`}
+                                onClick={() => handleCellClick(index)}
+                            >
                                 {renderSymbol(symbol)}
                             </button>
-                        ))}
+                        })}
                     </div>
+                    
+                    <button type="button" onClick={handleRestart}>Начать заново</button>
                 </div>
             );
         }
@@ -56,6 +113,10 @@
     </script>
 
     <style>
+        button {
+            font-size: 24px;
+        }
+
         .game {
             display: flex;
             flex-direction: column;
@@ -78,6 +139,7 @@
             display: grid;
             grid-template-rows: repeat(3, 1fr);
             grid-template-columns: repeat(3, 1fr);
+            margin-bottom: 1rem;
         }
 
         .cell {
